@@ -1,7 +1,30 @@
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "hash_table.h"
+
+#define HT_PRIME_1 41
+#define HT_PRIME_2 73
+
+static int ht_hash(char *s, int a, int m) {
+  long hash = 0;
+  const int len_s = strlen(s);
+
+  for (int i=0; i<len_s; ++i) {
+    hash += (long)pow(a, len_s - (i+1)) * s[i];
+    hash = hash % m;
+  }
+
+  return hash;
+}
+
+static int ht_get_hash(char* s, int num_buckets, int attempt) {
+  const int hash_a = ht_hash(s, HT_PRIME_1, num_buckets);
+  const int hash_b = ht_hash(s, HT_PRIME_2, num_buckets);
+
+  return (hash_a + (attempt * (hash_b + 1))) % num_buckets;
+}
 
 static ht_item* ht_new_item (char* k, char* v) {
   ht_item* i = malloc(sizeof(ht_item));
